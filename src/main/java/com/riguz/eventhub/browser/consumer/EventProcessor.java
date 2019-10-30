@@ -8,13 +8,14 @@ import com.riguz.eventhub.browser.model.Event;
 import javafx.collections.ObservableList;
 
 import java.io.UnsupportedEncodingException;
+import java.util.function.Consumer;
 
 public class EventProcessor implements IEventProcessor {
-    private final ObservableList<Event> tableItems;
+    private final Consumer<Event> onReceived;
     private int checkpointBatchingCount = 0;
 
-    public EventProcessor(ObservableList<Event> tableItems) {
-        this.tableItems = tableItems;
+    public EventProcessor(Consumer<Event> onReceived) {
+        this.onReceived = onReceived;
     }
 
     @Override
@@ -39,8 +40,7 @@ public class EventProcessor implements IEventProcessor {
                 String.valueOf(data.getSystemProperties().getSequenceNumber()),
                 data.getSystemProperties().getEnqueuedTime().toString(),
                 new String(data.getBytes(), "UTF8"));
-        if (!tableItems.contains(event))
-            tableItems.add(event);
+        onReceived.accept(event);
         System.out.println("=> (" + context.getPartitionId() + "," + data.getSystemProperties().getOffset() + "," +
                 data.getSystemProperties().getSequenceNumber() + "): ");
     }

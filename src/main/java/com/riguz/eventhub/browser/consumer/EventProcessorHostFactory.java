@@ -6,13 +6,27 @@ import com.microsoft.azure.eventprocessorhost.InMemoryCheckpointManager;
 import com.microsoft.azure.eventprocessorhost.InMemoryLeaseManager;
 import org.apache.commons.lang3.reflect.FieldUtils;
 
-public class EventProcessorHostFactory {
-    public static EventProcessorHost createHost() {
-        String consumerGroupName = "<your consumer group name>";
-        String hostNamePrefix = "<your hostname prefix>";
+import java.io.IOException;
+import java.util.Properties;
 
-        // dev env
-        String connectionString = "<your conncection string>";
+public class EventProcessorHostFactory {
+    private static final Properties config;
+
+    static {
+        config = new Properties();
+        try {
+            config.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static EventProcessorHost createHost() {
+        final String profile = config.getProperty("profile");
+        final String consumerGroupName = config.getProperty(profile + ".consumerGroupName");
+        final String hostNamePrefix = config.getProperty(profile + ".hostNamePrefix");
+        final String connectionString = config.getProperty(profile + ".connectionString");
+
 
         InMemoryCheckpointManager checkpointManager = new InMemoryCheckpointManager();
         InMemoryLeaseManager leaseManager = new InMemoryLeaseManager();

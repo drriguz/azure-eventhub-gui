@@ -27,7 +27,10 @@ public class Main extends Application {
             System.out.println("Unregistering event processors...");
             host.unregisterEventProcessor();
         }));
-        final EventProcessorFactory eventProcessorFactory = new EventProcessorFactory(controller.data);
+        final EventProcessorFactory eventProcessorFactory = new EventProcessorFactory((event) -> {
+            controller.getData().add(event);
+            controller.getTableView().sort();
+        });
 
         host.registerEventProcessorFactory(eventProcessorFactory);
     }
